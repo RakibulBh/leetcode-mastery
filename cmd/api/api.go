@@ -8,8 +8,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-openapi/runtime/logger"
-	"github.com/google/go-tika/tika"
 	"google.golang.org/genai"
 )
 
@@ -22,8 +20,6 @@ type geiminiConfig struct {
 type application struct {
 	config config
 	llm    *genai.Client
-	tika   *tika.Client
-	logger *logger.Logger
 }
 
 type config struct {
