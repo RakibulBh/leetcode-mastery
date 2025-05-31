@@ -18,13 +18,17 @@ import {
   LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import AddProblemForm from "@/components/AddProblemForm";
 import { Toaster, toast } from "react-hot-toast";
-import { sidebarItems } from "@/lib/constants/navigation";
-import { JournalEntry, difficultyColors } from "@/types/journal";
-import { addJournalEntry, getJournalEntries } from "@/services/requests";
+import AddProblemForm from "@/components/AddProblemForm";
 import JournalTable from "@/components/JournalTable";
+import { sidebarItems } from "@/lib/constants/navigation";
+import { JournalEntry } from "@/types/journal";
+import { addJournalEntry, getJournalEntries } from "@/services/requests";
 
+/**
+ * Dashboard component that serves as the main interface for the LeetCode Mastery application.
+ * It includes a collapsible sidebar, journal table, and problem details panel.
+ */
 export default function Dashboard() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("journal");
@@ -35,17 +39,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchJournalEntries = async () => {
-      const { data, error, message } = await getJournalEntries();
-      console.log("Fetched journal entries:", data);
-      if (error) {
-        toast.error(message);
+      try {
+        const { data, error, message } = await getJournalEntries();
+        if (error) {
+          toast.error(message);
+          return;
+        }
+        setJournalEntries(data || []);
+      } catch (error) {
+        toast.error("Failed to fetch journal entries");
+        console.error("Error fetching journal entries:", error);
       }
-      setJournalEntries(data || []);
     };
     fetchJournalEntries();
   }, []);
 
-  // Auto-collapse sidebar when entry is selected
   useEffect(() => {
     if (selectedEntry) {
       setIsCollapsed(true);
@@ -58,14 +66,11 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => {
-    // Add logout logic here
     console.log("Logging out...");
   };
 
   const handleAddProblem = async (data: any) => {
-    console.log("handleAddProblem called with data:", data);
     try {
-      // Create a new journal entry with the form data
       const newEntry: JournalEntry = {
         id: journalEntries.length + 1,
         problemName: data.problemName,
@@ -92,19 +97,16 @@ export default function Dashboard() {
         },
       };
 
-      console.log("Created new entry:", newEntry);
-
-      // Add the new entry to the list
       setJournalEntries([newEntry, ...journalEntries]);
-      console.log("Updated journal entries:", journalEntries);
 
       await addJournalEntry(newEntry);
 
-      // Close the form
       setShowAddProblemForm(false);
+      toast.success("Problem added successfully!");
     } catch (error) {
       console.error("Error in handleAddProblem:", error);
-      throw error; // Re-throw to be caught by the form's error handler
+      toast.error("Failed to add problem");
+      throw error;
     }
   };
 
@@ -113,7 +115,6 @@ export default function Dashboard() {
       case "journal":
         return (
           <div className="flex h-full">
-            {/* Journal List */}
             <div className={`flex-1 ${selectedEntry ? "pr-0" : "pr-4"}`}>
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
@@ -135,7 +136,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Details Panel */}
             <AnimatePresence>
               {selectedEntry && (
                 <motion.div
@@ -163,7 +163,6 @@ export default function Dashboard() {
 
                       return (
                         <div className="space-y-8">
-                          {/* Problem Understanding */}
                           <section>
                             <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
                               <span className="w-1 h-6 bg-white/20 rounded-full"></span>
@@ -212,7 +211,6 @@ export default function Dashboard() {
                             </div>
                           </section>
 
-                          {/* Brainstorming */}
                           <section>
                             <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
                               <span className="w-1 h-6 bg-white/20 rounded-full"></span>
@@ -263,7 +261,6 @@ export default function Dashboard() {
                             </div>
                           </section>
 
-                          {/* Implementation & Solution */}
                           <section>
                             <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
                               <span className="w-1 h-6 bg-white/20 rounded-full"></span>
@@ -317,7 +314,6 @@ export default function Dashboard() {
                             </div>
                           </section>
 
-                          {/* Learnings & Reflection */}
                           <section>
                             <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
                               <span className="w-1 h-6 bg-white/20 rounded-full"></span>
@@ -443,14 +439,12 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen bg-black text-white">
-      {/* Sidebar */}
       <motion.div
         initial={false}
         animate={{ width: isCollapsed ? "80px" : "280px" }}
         className="relative border-r border-white/10 bg-black/50 backdrop-blur-xl"
       >
         <div className="flex flex-col h-full">
-          {/* Toggle Button */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="absolute -right-3 top-6 bg-white/5 hover:bg-white/10 p-1 rounded-full border border-white/10 transition-colors"
@@ -462,7 +456,6 @@ export default function Dashboard() {
             )}
           </button>
 
-          {/* Logo */}
           <div className="p-6">
             <h1
               className={`font-bold text-xl ${
@@ -473,7 +466,6 @@ export default function Dashboard() {
             </h1>
           </div>
 
-          {/* Navigation Items */}
           <nav className="flex-1 px-4 space-y-2">
             {sidebarItems.map((item) => (
               <button
@@ -505,7 +497,6 @@ export default function Dashboard() {
             ))}
           </nav>
 
-          {/* Profile Section */}
           <div className="p-4 border-t border-white/10">
             <div className="relative">
               <button
@@ -530,7 +521,6 @@ export default function Dashboard() {
                 </AnimatePresence>
               </button>
 
-              {/* Profile Menu */}
               <AnimatePresence>
                 {showProfileMenu && !isCollapsed && (
                   <motion.div
@@ -558,10 +548,8 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-hidden">{renderMainContent()}</div>
 
-      {/* Add Problem Form Modal */}
       <AnimatePresence>
         {showAddProblemForm && (
           <AddProblemForm
@@ -571,7 +559,6 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      {/* Toast Provider */}
       <Toaster
         position="top-right"
         toastOptions={{

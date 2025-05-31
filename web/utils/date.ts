@@ -1,34 +1,41 @@
+/**
+ * Formats a date string into a consistent format for both server and client rendering.
+ * Uses UTC to ensure consistent timezone handling.
+ * @param dateString - ISO date string
+ * @returns Formatted date string in "Month Day, Year" format
+ */
 export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
+  try {
+    // Parse the date string and ensure UTC
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "Invalid date";
+    }
 
-  // Ensure consistent timezone by using UTC
-  const year = date.getUTCFullYear();
-  const month = date.getUTCMonth();
-  const day = date.getUTCDate();
-  const hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
+    // Use UTC methods to ensure consistent formatting
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
 
-  // Format with consistent month names
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+    // Format with consistent month names
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
 
-  // Format time with consistent padding
-  const formattedHours = hours.toString().padStart(2, "0");
-  const formattedMinutes = minutes.toString().padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
-  const displayHours = hours % 12 || 12;
-
-  return `${months[month]} ${day}, ${year}, ${displayHours}:${formattedMinutes} ${ampm}`;
+    return `${months[month]} ${day}, ${year}`;
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "Invalid date";
+  }
 };
