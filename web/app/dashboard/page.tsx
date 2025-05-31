@@ -18,246 +18,20 @@ import {
   LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const sidebarItems = [
-  { name: "My Journal", icon: BookOpen, id: "journal" },
-  { name: "Quiz Me!", icon: Brain, id: "quiz" },
-  { name: "Achievements", icon: Trophy, id: "achievements" },
-  { name: "Progress", icon: BarChart3, id: "progress" },
-  { name: "Daily Streak", icon: Sparkles, id: "streak" },
-  { name: "Study History", icon: History, id: "history" },
-  { name: "Goals", icon: Target, id: "goals" },
-  { name: "Bookmarks", icon: BookMarked, id: "bookmarks" },
-  { name: "Settings", icon: Settings, id: "settings" },
-];
-
-type Difficulty = "Easy" | "Medium" | "Hard";
-
-interface JournalEntry {
-  id: number;
-  problemName: string;
-  problemId: string;
-  dateDone: string;
-  topic: string;
-  difficulty: Difficulty;
-  details: {
-    inputs: string;
-    outputs: string;
-    constraints: string;
-    coreQuestion: string;
-    edgeCases: string;
-    ideas: Array<{
-      title: string;
-      pros: string;
-      cons: string;
-    }>;
-    chosenIdea: string;
-    rationale: string;
-    pseudocode: string;
-    implementation: string;
-    bugs: string;
-    missedEdgeCases: string;
-    solutionSummary: string;
-    keyLearnings: {
-      coreIdea: string;
-      dataStructureInsights: string;
-      algorithmInsights: string;
-    };
-    selfReflection: {
-      whatWentWell: string;
-      whatCouldBeBetter: string;
-      futureStudy: string;
-      confidenceLevel: "Low" | "Medium" | "High";
-    };
-  };
-}
-
-const difficultyColors: Record<Difficulty, string> = {
-  Easy: "bg-green-500/20 text-green-400 border-green-500/20",
-  Medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/20",
-  Hard: "bg-red-500/20 text-red-400 border-red-500/20",
-};
-
-// Update dummy data with proper typing
-const dummyJournalEntries: JournalEntry[] = [
-  {
-    id: 1,
-    problemName: "Two Sum",
-    problemId: "1",
-    dateDone: "2024-03-20",
-    topic: "Arrays",
-    difficulty: "Easy",
-    details: {
-      inputs: "nums = [2,7,11,15], target = 9",
-      outputs: "[0,1]",
-      constraints: "2 <= nums.length <= 104, -109 <= nums[i] <= 109",
-      coreQuestion: "Find two numbers in the array that add up to the target",
-      edgeCases: "Empty array, no solution, multiple solutions",
-      ideas: [
-        {
-          title: "Brute Force",
-          pros: "Simple to implement",
-          cons: "O(n²) time complexity",
-        },
-        {
-          title: "Hash Map",
-          pros: "O(n) time complexity",
-          cons: "Uses extra space",
-        },
-        {
-          title: "Two Pointers",
-          pros: "No extra space",
-          cons: "Requires sorted array",
-        },
-      ],
-      chosenIdea: "Hash Map",
-      rationale: "Best time complexity and reasonable space usage",
-      pseudocode:
-        "Create hash map\nIterate through array\nCheck if complement exists\nReturn indices",
-      implementation:
-        "function twoSum(nums, target) {\n  const map = new Map();\n  for(let i = 0; i < nums.length; i++) {\n    const complement = target - nums[i];\n    if(map.has(complement)) {\n      return [map.get(complement), i];\n    }\n    map.set(nums[i], i);\n  }\n  return [];\n}",
-      bugs: "Forgot to handle case when no solution exists",
-      missedEdgeCases: "Array with duplicate numbers",
-      solutionSummary:
-        "Used a hash map to store complements, achieving O(n) time complexity by trading space for time. The key insight was that we only need to store each number's complement once.",
-      keyLearnings: {
-        coreIdea:
-          "Using a hash map to store and look up values in O(1) time is a powerful pattern for array problems where we need to find pairs or complements.",
-        dataStructureInsights:
-          "Hash maps are perfect for problems requiring O(1) lookups. The space-time tradeoff is often worth it for better time complexity.",
-        algorithmInsights:
-          "Single-pass solutions are often possible when we can store and look up values efficiently. This pattern appears in many array problems.",
-      },
-      selfReflection: {
-        whatWentWell:
-          "Quickly identified the hash map approach and implemented it correctly. Good handling of edge cases.",
-        whatCouldBeBetter:
-          "Could have considered the two-pointer approach first, even though it wasn't optimal. Should practice more with different approaches.",
-        futureStudy:
-          "Review two-pointer techniques and practice more hash map problems. Study space-time tradeoffs in detail.",
-        confidenceLevel: "High",
-      },
-    },
-  },
-  {
-    id: 2,
-    problemName: "Valid Parentheses",
-    problemId: "20",
-    dateDone: "2024-03-19",
-    topic: "Stack",
-    difficulty: "Medium",
-    details: {
-      inputs: "s = '()[]{}'",
-      outputs: "true",
-      constraints: "1 <= s.length <= 104",
-      coreQuestion: "Check if the string of parentheses is valid",
-      edgeCases: "Empty string, single character, nested parentheses",
-      ideas: [
-        {
-          title: "Stack",
-          pros: "O(n) time complexity",
-          cons: "Uses extra space",
-        },
-        {
-          title: "Counter",
-          pros: "No extra space",
-          cons: "Doesn't work for all cases",
-        },
-      ],
-      chosenIdea: "Stack",
-      rationale: "Most reliable solution for all cases",
-      pseudocode:
-        "Create stack\nIterate through string\nPush opening brackets\nPop and check closing brackets",
-      implementation:
-        "function isValid(s) {\n  const stack = [];\n  const map = {')': '(', '}': '{', ']': '['};\n  for(let char of s) {\n    if(!map[char]) stack.push(char);\n    else if(stack.pop() !== map[char]) return false;\n  }\n  return stack.length === 0;\n}",
-      bugs: "Didn't check if stack is empty before popping",
-      missedEdgeCases: "String with only opening brackets",
-      solutionSummary:
-        "Used a stack to keep track of opening brackets and their corresponding closing brackets. The key insight was that we only need to push opening brackets onto the stack and pop them when we encounter the corresponding closing bracket.",
-      keyLearnings: {
-        coreIdea:
-          "Using a stack to keep track of opening brackets and their corresponding closing brackets is a powerful pattern for problems involving parentheses or matching pairs.",
-        dataStructureInsights:
-          "Stacks are perfect for problems where we need to keep track of the order of elements and ensure they are processed in the correct order. This pattern appears in many problems involving parentheses or matching pairs.",
-        algorithmInsights:
-          "Single-pass solutions are often possible when we can use a stack to keep track of elements and ensure they are processed in the correct order. This pattern appears in many problems involving parentheses or matching pairs.",
-      },
-      selfReflection: {
-        whatWentWell:
-          "Quickly identified the stack approach and implemented it correctly. Good handling of edge cases.",
-        whatCouldBeBetter:
-          "Could have considered the counter approach first, even though it wasn't optimal. Should practice more with different approaches.",
-        futureStudy:
-          "Review counter techniques and practice more stack problems. Study space-time tradeoffs in detail.",
-        confidenceLevel: "High",
-      },
-    },
-  },
-];
-
-// Add a new hard problem
-const newProblem: JournalEntry = {
-  id: 3,
-  problemName: "Median of Two Sorted Arrays",
-  problemId: "4",
-  dateDone: "2024-03-18",
-  topic: "Arrays",
-  difficulty: "Hard",
-  details: {
-    inputs: "nums1 = [1,3], nums2 = [2]",
-    outputs: "2.0",
-    constraints: "nums1.length + nums2.length >= 1",
-    coreQuestion: "Find the median of two sorted arrays",
-    edgeCases: "Empty arrays, single element arrays, even/odd length",
-    ideas: [
-      {
-        title: "Merge and Sort",
-        pros: "Simple to understand",
-        cons: "O(n log n) time complexity",
-      },
-      {
-        title: "Binary Search",
-        pros: "O(log n) time complexity",
-        cons: "Complex implementation",
-      },
-    ],
-    chosenIdea: "Binary Search",
-    rationale: "Best time complexity for large inputs",
-    pseudocode:
-      "Find partition points\nCompare elements\nAdjust partition\nReturn median",
-    implementation:
-      "function findMedianSortedArrays(nums1, nums2) {\n  // Implementation here\n}",
-    bugs: "Incorrect partition calculation",
-    missedEdgeCases: "Arrays with duplicate elements",
-    solutionSummary:
-      "Used a binary search approach to find the median of two sorted arrays. The key insight was that we can use the properties of sorted arrays to efficiently find the median without merging the arrays.",
-    keyLearnings: {
-      coreIdea:
-        "Using a binary search approach to find the median of two sorted arrays is a powerful pattern for array problems where we need to find the middle element of a sorted array.",
-      dataStructureInsights:
-        "Binary search is a powerful algorithm for finding an element in a sorted array. It's time complexity is O(log n), which is efficient for large arrays.",
-      algorithmInsights:
-        "Binary search is a powerful algorithm for finding an element in a sorted array. It's time complexity is O(log n), which is efficient for large arrays.",
-    },
-    selfReflection: {
-      whatWentWell:
-        "Quickly identified the binary search approach and implemented it correctly. Good handling of edge cases.",
-      whatCouldBeBetter:
-        "Could have considered the merge and sort approach first, even though it wasn't optimal. Should practice more with different approaches.",
-      futureStudy:
-        "Review merge and sort techniques and practice more binary search problems. Study space-time tradeoffs in detail.",
-      confidenceLevel: "High",
-    },
-  },
-};
-
-dummyJournalEntries.push(newProblem);
+import AddProblemForm from "@/components/AddProblemForm";
+import { Toaster } from "react-hot-toast";
+import { sidebarItems } from "@/lib/constants/navigation";
+import { JournalEntry, difficultyColors } from "@/types/journal";
+import { mockJournalEntries } from "@/lib/data/mockJournalEntries";
 
 export default function Dashboard() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("journal");
   const [selectedEntry, setSelectedEntry] = useState<number | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showAddProblemForm, setShowAddProblemForm] = useState(false);
+  const [journalEntries, setJournalEntries] =
+    useState<JournalEntry[]>(mockJournalEntries);
 
   // Auto-collapse sidebar when entry is selected
   useEffect(() => {
@@ -276,6 +50,50 @@ export default function Dashboard() {
     console.log("Logging out...");
   };
 
+  const handleAddProblem = async (data: any) => {
+    console.log("handleAddProblem called with data:", data);
+    try {
+      // Create a new journal entry with the form data
+      const newEntry: JournalEntry = {
+        id: journalEntries.length + 1,
+        problemName: data.problemName,
+        problemId: data.problemId,
+        dateDone: new Date().toISOString().split("T")[0],
+        topic: data.topic,
+        difficulty: data.difficulty,
+        details: {
+          inputs: data.inputs,
+          outputs: data.outputs,
+          constraints: data.constraints,
+          coreQuestion: data.coreQuestion,
+          edgeCases: data.edgeCases,
+          ideas: data.ideas,
+          chosenIdea: data.chosenIdea,
+          rationale: data.rationale,
+          pseudocode: data.pseudocode,
+          implementation: data.implementation,
+          bugs: data.bugs,
+          missedEdgeCases: data.missedEdgeCases,
+          solutionSummary: data.solutionSummary,
+          keyLearnings: data.keyLearnings,
+          selfReflection: data.selfReflection,
+        },
+      };
+
+      console.log("Created new entry:", newEntry);
+
+      // Add the new entry to the list
+      setJournalEntries([newEntry, ...journalEntries]);
+      console.log("Updated journal entries:", journalEntries);
+
+      // Close the form
+      setShowAddProblemForm(false);
+    } catch (error) {
+      console.error("Error in handleAddProblem:", error);
+      throw error; // Re-throw to be caught by the form's error handler
+    }
+  };
+
   const renderMainContent = () => {
     switch (activeSection) {
       case "journal":
@@ -286,7 +104,10 @@ export default function Dashboard() {
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
                   <h2 className="text-2xl font-bold">My Journal</h2>
-                  <button className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                  <button
+                    onClick={() => setShowAddProblemForm(true)}
+                    className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  >
                     <Plus className="w-5 h-5" />
                     Add Problem
                   </button>
@@ -316,7 +137,7 @@ export default function Dashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {dummyJournalEntries.map((entry) => (
+                        {journalEntries.map((entry) => (
                           <tr
                             key={entry.id}
                             onClick={() => setSelectedEntry(entry.id)}
@@ -380,7 +201,7 @@ export default function Dashboard() {
                       </button>
                     </div>
                     {(() => {
-                      const entry = dummyJournalEntries.find(
+                      const entry = journalEntries.find(
                         (e) => e.id === selectedEntry
                       );
                       if (!entry) return null;
@@ -487,13 +308,23 @@ export default function Dashboard() {
                             </div>
                           </section>
 
-                          {/* Implementation */}
+                          {/* Implementation & Solution */}
                           <section>
                             <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
                               <span className="w-1 h-6 bg-white/20 rounded-full"></span>
-                              Implementation
+                              Implementation & Solution
                             </h4>
                             <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">
+                                  Solution Summary
+                                </label>
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                                  <p className="text-gray-300">
+                                    {entry.details.solutionSummary}
+                                  </p>
+                                </div>
+                              </div>
                               <div>
                                 <label className="block text-sm text-gray-400 mb-1">
                                   Pseudocode
@@ -531,24 +362,11 @@ export default function Dashboard() {
                             </div>
                           </section>
 
-                          {/* Solution Summary */}
+                          {/* Learnings & Reflection */}
                           <section>
                             <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
                               <span className="w-1 h-6 bg-white/20 rounded-full"></span>
-                              Solution Summary
-                            </h4>
-                            <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-                              <p className="text-gray-300">
-                                {entry.details.solutionSummary}
-                              </p>
-                            </div>
-                          </section>
-
-                          {/* Key Learnings */}
-                          <section>
-                            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                              <span className="w-1 h-6 bg-white/20 rounded-full"></span>
-                              Key Learnings
+                              Learnings & Reflection
                             </h4>
                             <div className="space-y-4">
                               <div>
@@ -587,16 +405,6 @@ export default function Dashboard() {
                                   </p>
                                 </div>
                               </div>
-                            </div>
-                          </section>
-
-                          {/* Self Reflection */}
-                          <section>
-                            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                              <span className="w-1 h-6 bg-white/20 rounded-full"></span>
-                              Self Reflection
-                            </h4>
-                            <div className="space-y-4">
                               <div>
                                 <label className="block text-sm text-gray-400 mb-1">
                                   What Went Well
@@ -797,6 +605,40 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">{renderMainContent()}</div>
+
+      {/* Add Problem Form Modal */}
+      <AnimatePresence>
+        {showAddProblemForm && (
+          <AddProblemForm
+            onClose={() => setShowAddProblemForm(false)}
+            onSubmit={handleAddProblem}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Toast Provider */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "#1a1a1a",
+            color: "#fff",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          success: {
+            iconTheme: {
+              primary: "#22c55e",
+              secondary: "#fff",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#ef4444",
+              secondary: "#fff",
+            },
+          },
+        }}
+      />
     </div>
   );
 }
