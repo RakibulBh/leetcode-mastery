@@ -4,28 +4,33 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/RakibulBh/leetcode-mastery/internal/env"
+	"github.com/RakibulBh/journcode/internal/db"
+	"github.com/RakibulBh/journcode/internal/env"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"google.golang.org/genai"
 )
 
+type mongoConfig struct {
+	mongoUri string
+}
 type geiminiConfig struct {
 	model           string
 	apiKey          string
 	maxOutputTokens int
 }
-
 type application struct {
 	config config
 	llm    *genai.Client
+	db     *db.DB
 }
 
 type config struct {
 	addr    string
 	env     string
 	geimini geiminiConfig
+	mongo   mongoConfig
 }
 
 func (app *application) serve() http.Handler {
@@ -48,6 +53,9 @@ func (app *application) serve() http.Handler {
 
 	// Healthcheck
 	r.Get("/health", app.healthCheck)
+
+	r.Get("/journal", app.getJournalEntries)
+	r.Post("/journal", app.addJournalEntry)
 
 	return r
 }

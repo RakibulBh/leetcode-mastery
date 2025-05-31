@@ -1,15 +1,41 @@
 package main
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
-func (a *application) internalServerError(w http.ResponseWriter, err string) {
-	a.writeJSON(w, http.StatusInternalServerError, err, nil)
+type AppError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Err     error  `json:"-"`
 }
 
-func (a *application) notFoundError(w http.ResponseWriter, err string) {
-	a.writeJSON(w, http.StatusNotFound, err, nil)
+func (e *AppError) Error() string {
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+	return e.Message
 }
 
-func (a *application) badRequestError(w http.ResponseWriter, err string) {
-	a.writeJSON(w, http.StatusBadRequest, err, nil)
+func (e *AppError) WriteJSON(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(e.Code)
+	json.NewEncoder(w).Encode(e)
+}
+
+func NewBadRequestError(message string, err error) *AppError {
+	return &AppError{
+		Code:    http.StatusBadRequest,
+		Message: message,
+		Err:     err,
+	}
+}
+
+func NewInternalServerError(message string, err error) *AppError {
+	return &AppError{
+		Code:    http.StatusInternalServerError,
+		Message: message,
+		Err:     err,
+	}
 }

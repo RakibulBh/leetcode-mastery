@@ -4,6 +4,7 @@ export interface JournalEntry {
   id: number;
   problemName: string;
   problemId: string;
+  // ISO 8601 format: YYYY-MM-DDTHH:mm:ss.sssZ
   dateDone: string;
   topic: string;
   difficulty: Difficulty;

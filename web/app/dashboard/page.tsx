@@ -19,10 +19,11 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AddProblemForm from "@/components/AddProblemForm";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 import { sidebarItems } from "@/lib/constants/navigation";
 import { JournalEntry, difficultyColors } from "@/types/journal";
-import { mockJournalEntries } from "@/lib/data/mockJournalEntries";
+import { addJournalEntry, getJournalEntries } from "@/services/requests";
+import JournalTable from "@/components/JournalTable";
 
 export default function Dashboard() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -30,8 +31,19 @@ export default function Dashboard() {
   const [selectedEntry, setSelectedEntry] = useState<number | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAddProblemForm, setShowAddProblemForm] = useState(false);
-  const [journalEntries, setJournalEntries] =
-    useState<JournalEntry[]>(mockJournalEntries);
+  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+
+  useEffect(() => {
+    const fetchJournalEntries = async () => {
+      const { data, error, message } = await getJournalEntries();
+      console.log("Fetched journal entries:", data);
+      if (error) {
+        toast.error(message);
+      }
+      setJournalEntries(data || []);
+    };
+    fetchJournalEntries();
+  }, []);
 
   // Auto-collapse sidebar when entry is selected
   useEffect(() => {
@@ -86,6 +98,8 @@ export default function Dashboard() {
       setJournalEntries([newEntry, ...journalEntries]);
       console.log("Updated journal entries:", journalEntries);
 
+      await addJournalEntry(newEntry);
+
       // Close the form
       setShowAddProblemForm(false);
     } catch (error) {
@@ -113,70 +127,11 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {/* Table */}
-                <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-white/10 bg-white/5">
-                          <th className="text-left p-6 font-medium text-gray-300">
-                            Problem Name
-                          </th>
-                          <th className="text-left p-6 font-medium text-gray-300">
-                            ID
-                          </th>
-                          <th className="text-left p-6 font-medium text-gray-300">
-                            Date
-                          </th>
-                          <th className="text-left p-6 font-medium text-gray-300">
-                            Topic
-                          </th>
-                          <th className="text-left p-6 font-medium text-gray-300">
-                            Difficulty
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {journalEntries.map((entry) => (
-                          <tr
-                            key={entry.id}
-                            onClick={() => setSelectedEntry(entry.id)}
-                            className={`border-b border-white/10 cursor-pointer transition-colors
-                              ${
-                                selectedEntry === entry.id
-                                  ? "bg-white/10"
-                                  : "hover:bg-white/5"
-                              }`}
-                          >
-                            <td className="p-6 font-medium">
-                              {entry.problemName}
-                            </td>
-                            <td className="p-6 text-gray-300">
-                              #{entry.problemId}
-                            </td>
-                            <td className="p-6 text-gray-300">
-                              {entry.dateDone}
-                            </td>
-                            <td className="p-6">
-                              <span className="px-3 py-1 rounded-full text-sm bg-white/5 border border-white/10">
-                                {entry.topic}
-                              </span>
-                            </td>
-                            <td className="p-6">
-                              <span
-                                className={`px-3 py-1 rounded-full text-sm border ${
-                                  difficultyColors[entry.difficulty]
-                                }`}
-                              >
-                                {entry.difficulty}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                <JournalTable
+                  entries={journalEntries}
+                  selectedEntry={selectedEntry}
+                  onEntrySelect={setSelectedEntry}
+                />
               </div>
             </div>
 

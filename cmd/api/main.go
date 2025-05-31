@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"time"
 
-	"github.com/RakibulBh/leetcode-mastery/internal/env"
-	"github.com/RakibulBh/leetcode-mastery/internal/env/llm"
+	"github.com/RakibulBh/journcode/internal/db"
+	"github.com/RakibulBh/journcode/internal/env"
+	"github.com/RakibulBh/journcode/internal/llm"
 	"github.com/joho/godotenv"
 )
 
@@ -34,6 +36,9 @@ func main() {
 			apiKey:          env.GetString("GEIMINI_API_KEY", ""),
 			maxOutputTokens: env.GetInt("MAX_OUTPUT_TOKENS", 4096),
 		},
+		mongo: mongoConfig{
+			mongoUri: env.GetString("MONGO_URI", "mongodb://localhost:27017"),
+		},
 	}
 
 	log.Printf("Configuration loaded: LLM model=%s, max_tokens=%d",
@@ -51,9 +56,22 @@ func main() {
 		log.Printf("WARNING: LLM client may not have initialized properly")
 	}
 
+	// Initialize MongoDB client
+	client, err := db.New(cfg.mongo.mongoUri)
+	if err != nil {
+		log.Printf("WARNING: Logger service encountered an error: %d", err)
+	}
+	defer func() {
+		if err = client.Disconnect(context.Background()); err != nil {
+			panic(err)
+		}
+	}()
+	dbService := &db.DB{Client: client}
+
 	app := &application{
 		config: cfg,
 		llm:    llmClient,
+		db:     dbService,
 	}
 
 	// Prepare server
