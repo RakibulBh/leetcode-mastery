@@ -14,12 +14,14 @@ import {
   Sparkles,
   Plus,
   X,
+  User,
+  LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const sidebarItems = [
-  { name: "Quiz Me!", icon: Brain, id: "quiz" },
   { name: "My Journal", icon: BookOpen, id: "journal" },
+  { name: "Quiz Me!", icon: Brain, id: "quiz" },
   { name: "Achievements", icon: Trophy, id: "achievements" },
   { name: "Progress", icon: BarChart3, id: "progress" },
   { name: "Daily Streak", icon: Sparkles, id: "streak" },
@@ -29,14 +31,62 @@ const sidebarItems = [
   { name: "Settings", icon: Settings, id: "settings" },
 ];
 
-// Dummy data for journal entries
-const dummyJournalEntries = [
+type Difficulty = "Easy" | "Medium" | "Hard";
+
+interface JournalEntry {
+  id: number;
+  problemName: string;
+  problemId: string;
+  dateDone: string;
+  topic: string;
+  difficulty: Difficulty;
+  details: {
+    inputs: string;
+    outputs: string;
+    constraints: string;
+    coreQuestion: string;
+    edgeCases: string;
+    ideas: Array<{
+      title: string;
+      pros: string;
+      cons: string;
+    }>;
+    chosenIdea: string;
+    rationale: string;
+    pseudocode: string;
+    implementation: string;
+    bugs: string;
+    missedEdgeCases: string;
+    solutionSummary: string;
+    keyLearnings: {
+      coreIdea: string;
+      dataStructureInsights: string;
+      algorithmInsights: string;
+    };
+    selfReflection: {
+      whatWentWell: string;
+      whatCouldBeBetter: string;
+      futureStudy: string;
+      confidenceLevel: "Low" | "Medium" | "High";
+    };
+  };
+}
+
+const difficultyColors: Record<Difficulty, string> = {
+  Easy: "bg-green-500/20 text-green-400 border-green-500/20",
+  Medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/20",
+  Hard: "bg-red-500/20 text-red-400 border-red-500/20",
+};
+
+// Update dummy data with proper typing
+const dummyJournalEntries: JournalEntry[] = [
   {
     id: 1,
     problemName: "Two Sum",
     problemId: "1",
     dateDone: "2024-03-20",
     topic: "Arrays",
+    difficulty: "Easy",
     details: {
       inputs: "nums = [2,7,11,15], target = 9",
       outputs: "[0,1]",
@@ -68,6 +118,25 @@ const dummyJournalEntries = [
         "function twoSum(nums, target) {\n  const map = new Map();\n  for(let i = 0; i < nums.length; i++) {\n    const complement = target - nums[i];\n    if(map.has(complement)) {\n      return [map.get(complement), i];\n    }\n    map.set(nums[i], i);\n  }\n  return [];\n}",
       bugs: "Forgot to handle case when no solution exists",
       missedEdgeCases: "Array with duplicate numbers",
+      solutionSummary:
+        "Used a hash map to store complements, achieving O(n) time complexity by trading space for time. The key insight was that we only need to store each number's complement once.",
+      keyLearnings: {
+        coreIdea:
+          "Using a hash map to store and look up values in O(1) time is a powerful pattern for array problems where we need to find pairs or complements.",
+        dataStructureInsights:
+          "Hash maps are perfect for problems requiring O(1) lookups. The space-time tradeoff is often worth it for better time complexity.",
+        algorithmInsights:
+          "Single-pass solutions are often possible when we can store and look up values efficiently. This pattern appears in many array problems.",
+      },
+      selfReflection: {
+        whatWentWell:
+          "Quickly identified the hash map approach and implemented it correctly. Good handling of edge cases.",
+        whatCouldBeBetter:
+          "Could have considered the two-pointer approach first, even though it wasn't optimal. Should practice more with different approaches.",
+        futureStudy:
+          "Review two-pointer techniques and practice more hash map problems. Study space-time tradeoffs in detail.",
+        confidenceLevel: "High",
+      },
     },
   },
   {
@@ -76,6 +145,7 @@ const dummyJournalEntries = [
     problemId: "20",
     dateDone: "2024-03-19",
     topic: "Stack",
+    difficulty: "Medium",
     details: {
       inputs: "s = '()[]{}'",
       outputs: "true",
@@ -102,14 +172,92 @@ const dummyJournalEntries = [
         "function isValid(s) {\n  const stack = [];\n  const map = {')': '(', '}': '{', ']': '['};\n  for(let char of s) {\n    if(!map[char]) stack.push(char);\n    else if(stack.pop() !== map[char]) return false;\n  }\n  return stack.length === 0;\n}",
       bugs: "Didn't check if stack is empty before popping",
       missedEdgeCases: "String with only opening brackets",
+      solutionSummary:
+        "Used a stack to keep track of opening brackets and their corresponding closing brackets. The key insight was that we only need to push opening brackets onto the stack and pop them when we encounter the corresponding closing bracket.",
+      keyLearnings: {
+        coreIdea:
+          "Using a stack to keep track of opening brackets and their corresponding closing brackets is a powerful pattern for problems involving parentheses or matching pairs.",
+        dataStructureInsights:
+          "Stacks are perfect for problems where we need to keep track of the order of elements and ensure they are processed in the correct order. This pattern appears in many problems involving parentheses or matching pairs.",
+        algorithmInsights:
+          "Single-pass solutions are often possible when we can use a stack to keep track of elements and ensure they are processed in the correct order. This pattern appears in many problems involving parentheses or matching pairs.",
+      },
+      selfReflection: {
+        whatWentWell:
+          "Quickly identified the stack approach and implemented it correctly. Good handling of edge cases.",
+        whatCouldBeBetter:
+          "Could have considered the counter approach first, even though it wasn't optimal. Should practice more with different approaches.",
+        futureStudy:
+          "Review counter techniques and practice more stack problems. Study space-time tradeoffs in detail.",
+        confidenceLevel: "High",
+      },
     },
   },
 ];
+
+// Add a new hard problem
+const newProblem: JournalEntry = {
+  id: 3,
+  problemName: "Median of Two Sorted Arrays",
+  problemId: "4",
+  dateDone: "2024-03-18",
+  topic: "Arrays",
+  difficulty: "Hard",
+  details: {
+    inputs: "nums1 = [1,3], nums2 = [2]",
+    outputs: "2.0",
+    constraints: "nums1.length + nums2.length >= 1",
+    coreQuestion: "Find the median of two sorted arrays",
+    edgeCases: "Empty arrays, single element arrays, even/odd length",
+    ideas: [
+      {
+        title: "Merge and Sort",
+        pros: "Simple to understand",
+        cons: "O(n log n) time complexity",
+      },
+      {
+        title: "Binary Search",
+        pros: "O(log n) time complexity",
+        cons: "Complex implementation",
+      },
+    ],
+    chosenIdea: "Binary Search",
+    rationale: "Best time complexity for large inputs",
+    pseudocode:
+      "Find partition points\nCompare elements\nAdjust partition\nReturn median",
+    implementation:
+      "function findMedianSortedArrays(nums1, nums2) {\n  // Implementation here\n}",
+    bugs: "Incorrect partition calculation",
+    missedEdgeCases: "Arrays with duplicate elements",
+    solutionSummary:
+      "Used a binary search approach to find the median of two sorted arrays. The key insight was that we can use the properties of sorted arrays to efficiently find the median without merging the arrays.",
+    keyLearnings: {
+      coreIdea:
+        "Using a binary search approach to find the median of two sorted arrays is a powerful pattern for array problems where we need to find the middle element of a sorted array.",
+      dataStructureInsights:
+        "Binary search is a powerful algorithm for finding an element in a sorted array. It's time complexity is O(log n), which is efficient for large arrays.",
+      algorithmInsights:
+        "Binary search is a powerful algorithm for finding an element in a sorted array. It's time complexity is O(log n), which is efficient for large arrays.",
+    },
+    selfReflection: {
+      whatWentWell:
+        "Quickly identified the binary search approach and implemented it correctly. Good handling of edge cases.",
+      whatCouldBeBetter:
+        "Could have considered the merge and sort approach first, even though it wasn't optimal. Should practice more with different approaches.",
+      futureStudy:
+        "Review merge and sort techniques and practice more binary search problems. Study space-time tradeoffs in detail.",
+      confidenceLevel: "High",
+    },
+  },
+};
+
+dummyJournalEntries.push(newProblem);
 
 export default function Dashboard() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("journal");
   const [selectedEntry, setSelectedEntry] = useState<number | null>(null);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   // Auto-collapse sidebar when entry is selected
   useEffect(() => {
@@ -121,6 +269,11 @@ export default function Dashboard() {
   const handleCloseDetails = () => {
     setSelectedEntry(null);
     setIsCollapsed(false);
+  };
+
+  const handleLogout = () => {
+    // Add logout logic here
+    console.log("Logging out...");
   };
 
   const renderMainContent = () => {
@@ -157,6 +310,9 @@ export default function Dashboard() {
                           <th className="text-left p-6 font-medium text-gray-300">
                             Topic
                           </th>
+                          <th className="text-left p-6 font-medium text-gray-300">
+                            Difficulty
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -183,6 +339,15 @@ export default function Dashboard() {
                             <td className="p-6">
                               <span className="px-3 py-1 rounded-full text-sm bg-white/5 border border-white/10">
                                 {entry.topic}
+                              </span>
+                            </td>
+                            <td className="p-6">
+                              <span
+                                className={`px-3 py-1 rounded-full text-sm border ${
+                                  difficultyColors[entry.difficulty]
+                                }`}
+                              >
+                                {entry.difficulty}
                               </span>
                             </td>
                           </tr>
@@ -365,6 +530,131 @@ export default function Dashboard() {
                               </div>
                             </div>
                           </section>
+
+                          {/* Solution Summary */}
+                          <section>
+                            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                              <span className="w-1 h-6 bg-white/20 rounded-full"></span>
+                              Solution Summary
+                            </h4>
+                            <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                              <p className="text-gray-300">
+                                {entry.details.solutionSummary}
+                              </p>
+                            </div>
+                          </section>
+
+                          {/* Key Learnings */}
+                          <section>
+                            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                              <span className="w-1 h-6 bg-white/20 rounded-full"></span>
+                              Key Learnings
+                            </h4>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">
+                                  Core Idea & Pattern
+                                </label>
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                                  <p className="text-gray-300">
+                                    {entry.details.keyLearnings.coreIdea}
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">
+                                  Data Structure Insights
+                                </label>
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                                  <p className="text-gray-300">
+                                    {
+                                      entry.details.keyLearnings
+                                        .dataStructureInsights
+                                    }
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">
+                                  Algorithm Insights
+                                </label>
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                                  <p className="text-gray-300">
+                                    {
+                                      entry.details.keyLearnings
+                                        .algorithmInsights
+                                    }
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+
+                          {/* Self Reflection */}
+                          <section>
+                            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                              <span className="w-1 h-6 bg-white/20 rounded-full"></span>
+                              Self Reflection
+                            </h4>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">
+                                  What Went Well
+                                </label>
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                                  <p className="text-gray-300">
+                                    {entry.details.selfReflection.whatWentWell}
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">
+                                  What Could Be Better
+                                </label>
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                                  <p className="text-gray-300">
+                                    {
+                                      entry.details.selfReflection
+                                        .whatCouldBeBetter
+                                    }
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">
+                                  Areas for Future Study
+                                </label>
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                                  <p className="text-gray-300">
+                                    {entry.details.selfReflection.futureStudy}
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">
+                                  Confidence Level
+                                </label>
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                                  <span
+                                    className={`px-3 py-1 rounded-full text-sm border ${
+                                      entry.details.selfReflection
+                                        .confidenceLevel === "High"
+                                        ? "bg-green-500/20 text-green-400 border-green-500/20"
+                                        : entry.details.selfReflection
+                                            .confidenceLevel === "Medium"
+                                        ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/20"
+                                        : "bg-red-500/20 text-red-400 border-red-500/20"
+                                    }`}
+                                  >
+                                    {
+                                      entry.details.selfReflection
+                                        .confidenceLevel
+                                    }
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
                         </div>
                       );
                     })()}
@@ -451,6 +741,57 @@ export default function Dashboard() {
               </button>
             ))}
           </nav>
+
+          {/* Profile Section */}
+          <div className="p-4 border-t border-white/10">
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all
+                  text-gray-400 hover:bg-white/5 hover:text-white
+                  ${isCollapsed ? "justify-center" : "justify-start"}
+                `}
+              >
+                <User className="w-5 h-5" />
+                <AnimatePresence>
+                  {!isCollapsed && (
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="text-sm font-medium"
+                    >
+                      Profile
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+
+              {/* Profile Menu */}
+              <AnimatePresence>
+                {showProfileMenu && !isCollapsed && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute bottom-full left-0 mb-2 w-full bg-white/5 rounded-lg border border-white/10 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-white/10">
+                      <p className="font-medium">John Doe</p>
+                      <p className="text-sm text-gray-400">john@example.com</p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-red-400 hover:bg-white/5 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="text-sm">Logout</span>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
       </motion.div>
 
