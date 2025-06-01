@@ -32,9 +32,7 @@ const Navbar = () => {
             className="flex items-center gap-2 pl-4 hover:opacity-80 transition-opacity"
           >
             <CloudLightning className="w-5 h-5 text-white" />
-            <h1 className="text-lg font-semibold text-white">
-              LeetCode Mastery
-            </h1>
+            <h1 className="text-lg font-semibold text-white">JournCode</h1>
           </Link>
 
           {/* Desktop Navigation */}

@@ -1,22 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  BookOpen,
-  Brain,
-  Trophy,
-  BarChart3,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  BookMarked,
-  Target,
-  History,
-  Sparkles,
-  Plus,
-  X,
-  User,
-  LogOut,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X, User, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import AddProblemForm from "@/components/AddProblemForm";
@@ -24,6 +8,7 @@ import JournalTable from "@/components/JournalTable";
 import { sidebarItems } from "@/lib/constants/navigation";
 import { JournalEntry } from "@/types/journal";
 import { addJournalEntry, getJournalEntries } from "@/services/requests";
+import { ProblemFormData } from "@/lib/schemas/problemSchema";
 
 /**
  * Dashboard component that serves as the main interface for the LeetCode Mastery application.
@@ -69,7 +54,7 @@ export default function Dashboard() {
     console.log("Logging out...");
   };
 
-  const handleAddProblem = async (data: any) => {
+  const handleAddProblem = async (data: ProblemFormData) => {
     try {
       const newEntry: JournalEntry = {
         id: journalEntries.length + 1,
